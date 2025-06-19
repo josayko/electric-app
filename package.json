@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-app",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@electric-sql/client": "^1.0.4",
+    "@vueuse/core": "^13.4.0",
+    "nuxt": "^3.17.5",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "1.4.1",
+    "@tailwindcss/vite": "^4.1.10",
+    "daisyui": "^5.0.43",
+    "eslint": "^9.29.0",
+    "tailwindcss": "^4.1.10",
+    "typescript": "^5.8.3"
+  }
+}
