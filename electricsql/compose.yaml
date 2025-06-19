@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:17.5-bookworm
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      APP_DB_USER: ${APP_DB_USER}
+      APP_DB_PASS: ${APP_DB_PASS}
+      APP_DB_NAME: ${APP_DB_NAME}
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d/
+      - ./custom_pg_hba.conf:/etc/postgresql/custom_pg_hba.conf:ro
+      - postgres-data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      # Optional: To enforce SSL connections, you might also need to
+      # mount a custom pg_hba.conf and set hba_file
+      - "-c"
+      - "hba_file=/etc/postgresql/custom_pg_hba.conf"
+    ports:
+      - 5432:5432
+    healthcheck:
+      # This test ensures that Electric only attempts to connect once Postgres is fully ready.
+      # It uses the standard pg_isready utility to check the database connection status.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - electric-net
+
+  electric:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: electricsql/electric:1.0.20
+    container_name: electric
+    environment:
+      DATABASE_URL: ${DATABASE_URL} # This URL must use the service name 'postgres' as the host
+      ELECTRIC_SECRET: ${ELECTRIC_SECRET}
+    ports:
+      - 3000:3000
+    networks:
+      - electric-net
+
+volumes:
+  postgres-data:
+
+networks:
+  electric-net:
+    driver: bridge
