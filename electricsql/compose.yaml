@@ -34,21 +34,48 @@ services:
       - electric-net
 
   electric:
+    image: electricsql/electric:1.0.20
+    container_name: electric
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
-    image: electricsql/electric:1.0.20
-    container_name: electric
     environment:
       DATABASE_URL: ${DATABASE_URL} # This URL must use the service name 'postgres' as the host
       ELECTRIC_SECRET: ${ELECTRIC_SECRET}
+    networks:
+      - electric-net
+
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    # It is good practice to also give your custom-built image a name.
+    # This makes it easier to manage and inspect.
+    image: custom-caddy-with-jwt:latest
+    container_name: caddy-proxy
+    restart: unless-stopped
+    depends_on:
+      - electric
+    environment:
+      ELECTRIC_URL: ${ELECTRIC_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
     ports:
-      - 3000:3000
+      # - "80:80"
+      # - "443:443"
+      # - "443:443/udp" # For HTTP/3
+      - "8443:8443" # For local development
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile # Mounts your custom Caddyfile
+      - caddy-data:/data                 # Persists Caddy's data like TLS certificates
+      - caddy-config:/config             # Persists Caddy's configuration
     networks:
       - electric-net
 
 volumes:
   postgres-data:
+  caddy-data:
+  caddy-config:
 
 networks:
   electric-net:
