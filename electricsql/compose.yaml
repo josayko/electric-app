@@ -36,13 +36,14 @@ services:
   electric:
     image: electricsql/electric:1.0.20
     container_name: electric
-    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: ${DATABASE_URL} # This URL must use the service name 'postgres' as the host
       ELECTRIC_SECRET: ${ELECTRIC_SECRET}
+    # ports:
+    #   - 3000:3000 # IMPORTANT: Do not expose the Electric port outside the network, use caddy as a reverse proxy instead
     networks:
       - electric-net
 
@@ -54,17 +55,17 @@ services:
     # This makes it easier to manage and inspect.
     image: custom-caddy-with-jwt:latest
     container_name: caddy-proxy
-    restart: unless-stopped
     depends_on:
       - electric
     environment:
       ELECTRIC_URL: ${ELECTRIC_URL}
+      ELECTRIC_SECRET: ${ELECTRIC_SECRET}
       AUTH_SECRET: ${AUTH_SECRET}
     ports:
       # - "80:80"
       # - "443:443"
       # - "443:443/udp" # For HTTP/3
-      - "8443:8443" # For local development
+      - "8080:8080" # For local development
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile # Mounts your custom Caddyfile
       - caddy-data:/data                 # Persists Caddy's data like TLS certificates

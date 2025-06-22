@@ -1,6 +1,6 @@
 FROM caddy:2.10.0-builder-alpine AS builder
 
-RUN xcaddy build --with github.com/ggicci/caddy-jwt@v1.1.0
+RUN xcaddy build --with github.com/ggicci/caddy-jwt
 
 FROM caddy:2.10.0-alpine
 

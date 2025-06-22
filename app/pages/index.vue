@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Shape, ShapeStream, type Row } from '@electric-sql/client';
 
-const config = useRuntimeConfig();
-
 // Define row type
 interface Todos extends Row<unknown> {
   id: number;
@@ -13,26 +11,32 @@ interface Todos extends Row<unknown> {
 
 const todos = ref<Todos[]>([]);
 
-const stream = new ShapeStream<Todos>({
-  url: config.public.electricUrl,
-  params: {
-    table: 'todo',
-    secret: config.public.electricSecret
-  },
-  parser: {
-    // Parse timestamp columns into JavaScript Date objects
-    timestamptz: (date: string) => new Date(date)
-  }
-});
-const shape = new Shape(stream);
+try {
+  const { data: authDetails } = await useFetch('/api/gatekeeper/todo');
+  if (authDetails.value?.status === 'success') {
+    const stream = new ShapeStream<Todos>({
+      url: authDetails.value.url,
+      params: {
+        table: authDetails.value.table
+      },
+      headers: authDetails.value.headers,
+      parser: {
+        // Parse timestamp columns into JavaScript Date objects
+        timestamptz: (date: string) => new Date(date)
+      }
+    });
 
-onMounted(() => {
-  // The callback runs every time the Shape data changes.
-  shape.subscribe((data) => {
-    todos.value = data.rows;
-    console.log(data);
-  });
-});
+    const shape = new Shape(stream);
+
+    shape.subscribe((data) => {
+      todos.value = data.rows;
+    });
+  }
+}
+catch (error) {
+  console.error(error);
+  todos.value = [];
+}
 </script>
 
 <template>

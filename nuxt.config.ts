@@ -5,10 +5,8 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint'],
   css: ['./assets/css/main.css'],
   runtimeConfig: {
-    public: {
-      electricUrl: '',
-      electricSecret: ''
-    }
+    authSecretPlaintext: '',
+    proxyShapeUrl: ''
   },
   devServer: {
     port: 5173
