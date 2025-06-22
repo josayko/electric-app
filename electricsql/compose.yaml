@@ -33,6 +33,29 @@ services:
     networks:
       - electric-net
 
+  cert-renewer:
+    image: postgres:17.5-bookworm
+    container_name: postgres-cert-renewer
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./ssl-renew.sh:/usr/local/bin/ssl-renew.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - POSTGRES_CONTAINER=postgres
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    entrypoint: >
+      sh -c "
+        apt-get update && apt-get install -y cron docker.io &&
+        chmod +x /usr/local/bin/ssl-renew.sh &&
+        echo '*/2 * * * * /usr/local/bin/ssl-renew.sh >> /var/log/ssl-renew.log 2>&1' | crontab - &&
+        cron -f
+      "
+    depends_on:
+      - postgres
+    networks:
+      - electric-net
+
   electric:
     image: electricsql/electric:1.0.20
     container_name: electric

@@ -5,7 +5,7 @@ set -e
 # This user has the necessary privileges to create databases, users, and tables.
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
   -- Create the application user with REPLICATION and LOGIN roles
-  CREATE USER $DB_USER WITH REPLICATION LOGIN PASSWORD '$DB_PASSWORD';
+  CREATE USER $DB_USER WITH SUPERUSER REPLICATION LOGIN PASSWORD '$DB_PASSWORD';
 
   -- Create the application database
   CREATE DATABASE $DB_NAME;
