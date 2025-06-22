@@ -17,7 +17,24 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   vite: {
     plugins: [
-      tailwindcss()
+      tailwindcss(),
+      {
+        // https://github.com/tailwindlabs/tailwindcss/discussions/16119
+        name: 'vite-plugin-ignore-sourcemap-warnings',
+        apply: 'build',
+        configResolved(config) {
+          config.build.rollupOptions.onwarn = (warning, warn) => {
+            if (
+              warning.code === 'SOURCEMAP_BROKEN'
+              && warning.plugin === '@tailwindcss/vite:generate:build'
+            ) {
+              return;
+            }
+
+            warn(warning);
+          };
+        }
+      }
     ]
   },
   eslint: {

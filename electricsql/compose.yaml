@@ -6,9 +6,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      APP_DB_USER: ${APP_DB_USER}
-      APP_DB_PASS: ${APP_DB_PASS}
-      APP_DB_NAME: ${APP_DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d/
       - ./custom_pg_hba.conf:/etc/postgresql/custom_pg_hba.conf:ro
@@ -53,20 +53,22 @@ services:
       dockerfile: Dockerfile
     # It is good practice to also give your custom-built image a name.
     # This makes it easier to manage and inspect.
-    image: custom-caddy-with-jwt:latest
-    container_name: caddy-proxy
+    image: caddy-proxy-with-jwt:latest
+    container_name: caddy
     depends_on:
       - electric
     environment:
       ELECTRIC_URL: ${ELECTRIC_URL}
       ELECTRIC_SECRET: ${ELECTRIC_SECRET}
-      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_SECRET_BASE64: ${AUTH_SECRET_BASE64}
       CORS_ORIGIN: ${CORS_ORIGIN}
-      DOMAIN_NAME: ${DOMAIN_NAME}
+      PROXY_HOST: ${PROXY_HOST}
+      PROXY_PORT: ${PROXY_PORT}
     ports:
       # - "80:80"
       # - "443:443"
       # - "443:443/udp" # For HTTP/3
+      # - "8080:8080" # For local development
       - "8443:8443" # For local development with HTTPS
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile # Mounts your custom Caddyfile

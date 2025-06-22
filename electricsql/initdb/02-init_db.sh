@@ -5,20 +5,20 @@ set -e
 # This user has the necessary privileges to create databases, users, and tables.
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
   -- Create the application user with REPLICATION and LOGIN roles
-  CREATE USER $APP_DB_USER WITH REPLICATION LOGIN PASSWORD '$APP_DB_PASS';
+  CREATE USER $DB_USER WITH REPLICATION LOGIN PASSWORD '$DB_PASSWORD';
 
   -- Create the application database
-  CREATE DATABASE $APP_DB_NAME;
+  CREATE DATABASE $DB_NAME;
 
   -- Grant all privileges on the database to the application user
-  GRANT ALL PRIVILEGES ON DATABASE $APP_DB_NAME TO $APP_DB_USER;
+  GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
 
   -- Change the owner of the database to the application user
-  ALTER DATABASE $APP_DB_NAME OWNER TO $APP_DB_USER;
+  ALTER DATABASE $DB_NAME OWNER TO $DB_USER;
 
   -- Connect to the newly created database (still as the superuser POSTGRES_USER)
-  -- This allows the superuser to create tables within the APP_DB_NAME database.
-  \connect $APP_DB_NAME
+  -- This allows the superuser to create tables within the DB_NAME database.
+  \connect $DB_NAME
 
   BEGIN;
     -- Create the todo table
@@ -38,18 +38,18 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   COMMIT;
 
   -- Set owner of the table
-  ALTER TABLE todo OWNER TO $APP_DB_USER;
+  ALTER TABLE todo OWNER TO $DB_USER;
 
   -- Optional but recommended: Set default privileges for future objects
   -- created by the $POSTGRES_USER in the 'public' schema, so they are
-  -- automatically granted to $APP_DB_USER.
+  -- automatically granted to $DB_USER.
   -- This is useful if the superuser creates more tables later.
-  ALTER DEFAULT PRIVILEGES FOR ROLE $POSTGRES_USER IN SCHEMA public GRANT ALL ON TABLES TO $APP_DB_USER;
-  ALTER DEFAULT PRIVILEGES FOR ROLE $POSTGRES_USER IN SCHEMA public GRANT ALL ON SEQUENCES TO $APP_DB_USER;
+  ALTER DEFAULT PRIVILEGES FOR ROLE $POSTGRES_USER IN SCHEMA public GRANT ALL ON TABLES TO $DB_USER;
+  ALTER DEFAULT PRIVILEGES FOR ROLE $POSTGRES_USER IN SCHEMA public GRANT ALL ON SEQUENCES TO $DB_USER;
 
   -- Also grant USAGE on the schema if you explicitly use schemas or want to be explicit.
   -- The public schema usually has USAGE granted to PUBLIC by default, but this doesn't hurt.
-  GRANT USAGE ON SCHEMA public TO $APP_DB_USER;
+  GRANT USAGE ON SCHEMA public TO $DB_USER;
 
 EOSQL
 

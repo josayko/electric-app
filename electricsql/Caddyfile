@@ -4,7 +4,7 @@
 }
 
 # Replace localhost with your domain name in production with the correct HTTPS port
-{$DOMAIN_NAME:"localhost:8443"} {
+{$PROXY_HOST:"localhost"}:{$PROXY_PORT:8443} {
 	tls internal # Remove this line in production
 
 	# Handle OPTIONS requests first
@@ -32,7 +32,7 @@
 		#     sign_key "<secret_key_bytes_in_base64_format>"
 		#
 		# See https://caddyserver.com/docs/modules/http.authentication.providers.jwt
-		sign_key {$AUTH_SECRET:"TkZMNSowQmMjOVU2RUB0bm1DJkU3U1VONkd3SGZMbVk="}
+		sign_key {$AUTH_SECRET_BASE64:"TkZMNSowQmMjOVU2RUB0bm1DJkU3U1VONkd3SGZMbVk="}
 		sign_alg HS256
 
 		# The jwtauth module requires a user claim but we don't actually use
