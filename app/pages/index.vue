@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Shape, ShapeStream, type Row } from '@electric-sql/client';
+import type { UserShape } from '../../server/utils/types';
 
 // Define row type
 interface Todos extends Row<unknown> {
@@ -10,16 +11,26 @@ interface Todos extends Row<unknown> {
 }
 
 const todos = ref<Todos[]>([]);
+const getTokenFromShape = async (shape: UserShape) => {
+  const token = await $fetch('/api/gatekeeper/token', {
+    method: 'POST',
+    body: shape
+  });
+  return token;
+};
 
 try {
-  const { data: authDetails } = await useFetch('/api/gatekeeper/todo');
-  if (authDetails.value?.status === 'success') {
+  const { data: shapeConfig } = await useFetch('/api/gatekeeper/todo');
+  if (shapeConfig.value?.status === 'success') {
+    const userShape = shapeConfig.value.userShape;
     const stream = new ShapeStream<Todos>({
-      url: authDetails.value.url,
+      url: shapeConfig.value.url,
       params: {
-        table: authDetails.value.table
+        table: shapeConfig.value.table
       },
-      headers: authDetails.value.headers,
+      headers: {
+        Authorization: async () => `Bearer ${await getTokenFromShape(userShape)}`
+      },
       parser: {
         // Parse timestamp columns into JavaScript Date objects
         timestamptz: (date: string) => new Date(date)
