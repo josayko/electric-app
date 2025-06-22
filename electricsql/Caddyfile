@@ -4,13 +4,15 @@
 }
 
 # Replace localhost with your domain name in production with the correct HTTPS port
-:8080 {
+{$DOMAIN_NAME:"localhost:8443"} {
+	tls internal # Remove this line in production
+
 	# Handle OPTIONS requests first
 	@cors_preflight method OPTIONS
 	respond @cors_preflight 204
 
 	# CORS headers
-	header Access-Control-Allow-Origin "http://localhost:5173"
+	header Access-Control-Allow-Origin {$CORS_ORIGIN:"http://localhost:5173"}
 	header Access-Control-Allow-Methods "GET, HEAD, DELETE, OPTIONS"
 	header Access-Control-Allow-Headers "Authorization"
 

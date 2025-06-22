@@ -61,13 +61,16 @@ services:
       ELECTRIC_URL: ${ELECTRIC_URL}
       ELECTRIC_SECRET: ${ELECTRIC_SECRET}
       AUTH_SECRET: ${AUTH_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      DOMAIN_NAME: ${DOMAIN_NAME}
     ports:
       # - "80:80"
       # - "443:443"
       # - "443:443/udp" # For HTTP/3
-      - "8080:8080" # For local development
+      - "8443:8443" # For local development with HTTPS
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile # Mounts your custom Caddyfile
+      - ./caddy-certs:/data/caddy/pki/authorities/local # TLS certificates
       - caddy-data:/data                 # Persists Caddy's data like TLS certificates
       - caddy-config:/config             # Persists Caddy's configuration
     networks:
