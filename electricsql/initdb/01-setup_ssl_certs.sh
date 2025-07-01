@@ -39,9 +39,9 @@ if $NEEDS_GENERATION; then
   echo "Generating new self-signed SSL certificates for PostgreSQL..."
   # Generate a new self-signed certificate and key
   # -nodes: no encryption for the private key (simplifies automation)
-  # -days 365: certificate valid for one year (adjust as needed)
+  # -days 90: certificate valid for 90 days (adjust as needed)
   # -subj "/CN=localhost": Common Name for the certificate, set to localhost
-  openssl req -new -x509 -nodes -text -subj "/CN=localhost" -out "$SERVER_CRT" -keyout "$SERVER_KEY" -days 365
+  openssl req -new -x509 -nodes -text -subj "/CN=localhost" -out "$SERVER_CRT" -keyout "$SERVER_KEY" -days 90
   echo "Certificates generated in $CERT_DIR."
 else
   echo "SSL certificates exist and are valid. Skipping generation."

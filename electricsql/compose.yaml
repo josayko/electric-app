@@ -9,6 +9,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      POSTGRES_INITDB_ARGS: --auth=scram-sha-256
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d/
       - ./custom_pg_hba.conf:/etc/postgresql/custom_pg_hba.conf:ro
@@ -40,10 +41,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./ssl-renew.sh:/usr/local/bin/ssl-renew.sh
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - POSTGRES_CONTAINER=postgres
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - .env:/var/lib/.env
     entrypoint: >
       sh -c "
         apt-get update && apt-get install -y cron docker.io &&

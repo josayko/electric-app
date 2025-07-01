@@ -58,3 +58,9 @@ chmod 600 server.key &&
 chown 999:999 server.key server.crt
 "
 ```
+
+## Set postgres user password
+```bash
+docker exec -it postgres psql -U postgres
+ALTER USER postgres WITH PASSWORD 'your-password';
+```
